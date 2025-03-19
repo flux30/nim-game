@@ -1,6 +1,7 @@
 # Nim Game
 
-![Nim Game Screenshot](image.png)
+![image](https://github.com/user-attachments/assets/6f66878f-57c2-428b-8d0e-4e991e9cbd09)
+
 
 Welcome to the **Nim Game**! This is a classic mathematical strategy game where you and the AI take turns removing balls from a heap. The player forced to take the last ball loses. Can you outsmart the AI? Test your skills and see if you can win!
 
