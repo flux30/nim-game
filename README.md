@@ -42,7 +42,6 @@ Welcome to the **Nim Game**! This is a classic mathematical strategy game where 
 ## Technologies Used
 
 - **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Python (Flask) for AI logic
 - **Styling**: Custom CSS with modern design and animations
 - **Deployment**: Vercel
 
