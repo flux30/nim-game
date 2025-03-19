@@ -68,10 +68,4 @@ Welcome to the **Nim Game**! This is a classic mathematical strategy game where 
 
 ---
 
-## License
-
-This project is licensed under the **MIT License**. See the `LICENSE` file for details.
-
----
-
 Enjoy the game! Let me know if you have any feedback or suggestions. 😊
