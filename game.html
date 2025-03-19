@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nim Game - Play</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --bg-color: #121212;
+            --card-color: #1e1e1e;
+            --accent-color: #b066ff;
+            --accent-color-light: #d4a9ff;
+            --text-color: #ffffff;
+            --secondary-text: #a0a0a0;
+            --player-color: #4287f5;
+            --ai-color: #f54242;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--card-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .game-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.2rem;
+        }
+        
+        .game-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .info-box.difficulty {
+            color: var(--accent-color-light);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .game-status {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .balls-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            max-width: 600px;
+        }
+        
+        .ball {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--accent-color-light), var(--accent-color));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(176, 102, 255, 0.4);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ball:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(176, 102, 255, 0.6);
+        }
+        
+        .ball.selected {
+            background: radial-gradient(circle at 30% 30%, #4287f5, #2463cc);
+            transform: translateY(-5px);
+        }
+        
+        .ball.removed {
+            opacity: 0.2;
+            transform: scale(0.8);
+            pointer-events: none;
+            animation: fadeOut 0.3s ease forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.5); }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(176, 102, 255, 0.4);
+        }
+        
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn:not(.disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(176, 102, 255, 0.6);
+        }
+        
+        .btn:not(.disabled):active {
+            transform: translateY(1px);
+        }
+        
+        .player-sections {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        
+        .player-section {
+            flex: 1;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .player-section h2 {
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .player-section.active {
+            box-shadow: 0 0 20px rgba(176, 102, 255, 0.3);
+            background-color: rgba(176, 102, 255, 0.1);
+        }
+        
+        .player-section .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .removed-count {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+        
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .game-over-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over-modal {
+            background-color: var(--card-color);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transform: translateY(20px);
+            transition: transform 0.5s ease;
+        }
+        
+        .game-over-overlay.active .game-over-modal {
+            transform: translateY(0);
+        }
+        
+        .game-over-modal h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+        
+        .game-over-modal p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--secondary-text);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .selected-count {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: transparent;
+            color: var(--secondary-text);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+        }
+        
+        @media (max-width: 600px) {
+            .player-sections {
+                flex-direction: column;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .game-title {
+                justify-content: center;
+            }
+            
+            .ball {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="home-btn" onclick="window.location.href='index.html'">
+        ← Home
+    </button>
+    
+    <div class="container">
+        <div class="game-header">
+            <div class="game-title">
+                <h1>Nim Game</h1>
+            </div>
+            <div class="game-info">
+                <div class="info-box difficulty">
+                    <span>Difficulty:</span>
+                    <span id="difficulty-display">Medium</span>
+                </div>
+                <div class="info-box">
+                    <span>Balls Remaining:</span>
+                    <span id="remaining-balls">15</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-status" id="game-status">Select 1-3 balls, then click "Remove Selected"</div>
+            
+            <div class="balls-container" id="balls-container">
+                <!-- Balls will be generated by JavaScript -->
+            </div>
+            
+            <div class="selected-count" id="selected-count">Selected: 0</div>
+            
+            <div class="controls">
+                <button class="btn" id="remove-btn">Remove Selected</button>
+                <button class="btn" id="reset-btn">Reset Selection</button>
+                <button class="btn" id="restart-btn">Restart Game</button>
+            </div>
+        </div>
+        
+        <div class="player-sections">
+            <div class="player-section" id="player-section">
+                <span class="icon">👤</span>
+                <h2>You</h2>
+                <div class="removed-count" id="player-removed">0</div>
+                <p>balls removed</p>
+            </div>
+            
+            <div class="player-section" id="ai-section">
+                <span class="icon">🤖</span>
+                <h2>AI</h2>
+                <div class="removed-count" id="ai-removed">0</div>
+                <p>balls removed</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-over-overlay" id="game-over-overlay">
+        <div class="game-over-modal">
+            <h2 id="winner-text">Game Over</h2>
+            <p id="game-result">The AI has won this round.</p>
+            <div class="modal-buttons">
+                <button class="btn" onclick="window.location.href='game.html'">Play Again</button>
+                <button class="btn" onclick="window.location.href='index.html'">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game settings and state
+        const TOTAL_BALLS = 15;
+        let remainingBalls = TOTAL_BALLS;
+        let selectedBalls = [];
+        let playerRemoved = 0;
+        let aiRemoved = 0;
+        let currentPlayer = 'player'; // 'player' or 'ai'
+        let difficulty = 'medium'; // 'easy', 'medium', 'hard'
+        let gameActive = true;
+
+        // DOM Elements
+        const ballsContainer = document.getElementById('balls-container');
+        const gameStatus = document.getElementById('game-status');
+        const selectedCountDisplay = document.getElementById('selected-count');
+        const removeBtn = document.getElementById('remove-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const remainingBallsDisplay = document.getElementById('remaining-balls');
+        const playerRemovedDisplay = document.getElementById('player-removed');
+        const aiRemovedDisplay = document.getElementById('ai-removed');
+        const playerSection = document.getElementById('player-section');
+        const aiSection = document.getElementById('ai-section');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const winnerText = document.getElementById('winner-text');
+        const gameResult = document.getElementById('game-result');
+        const difficultyDisplay = document.getElementById('difficulty-display');
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get game settings from sessionStorage
+            const storedDifficulty = sessionStorage.getItem('nimDifficulty');
+            const storedFirstPlayer = sessionStorage.getItem('nimFirstPlayer');
+            
+            if (['easy', 'medium', 'hard'].includes(storedDifficulty)) {
+                difficulty = storedDifficulty;
+                difficultyDisplay.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+            
+            if (['player', 'ai'].includes(storedFirstPlayer)) {
+                currentPlayer = storedFirstPlayer;
+            }
+            
+            // Create balls
+            createBalls();
+            
+            // Update displays
+            updateGameDisplay();
+            
+            // If AI goes first, make the first move
+            if (currentPlayer === 'ai') {
+                setTimeout(makeAiMove, 1000);
+            }
+        });
+
+        // Create ball elements
+        function createBalls() {
+            ballsContainer.innerHTML = '';
+            for (let i = 1; i <= TOTAL_BALLS; i++) {
+                const ball = document.createElement('div');
+                ball.classList.add('ball');
+                ball.dataset.id = i;
+                ball.textContent = i;
+                
+                ball.addEventListener('click', function() {
+                    if (!gameActive || currentPlayer === 'ai') return;
+                    
+                    const ballId = parseInt(this.dataset.id);
+                    
+                    if (this.classList.contains('removed')) return;
+                    
+                    if (this.classList.contains('selected')) {
+                        // Deselect the ball
+                        this.classList.remove('selected');
+                        selectedBalls = selectedBalls.filter(id => id !== ballId);
+                    } else {
+                        // Only allow selection if we haven't reached the maximum
+                        if (selectedBalls.length < 3) {
+                            this.classList.add('selected');
+                            selectedBalls.push(ballId);
+                        }
+                    }
+                    
+                    updateSelectedCount();
+                });
+                
+                ballsContainer.appendChild(ball);
+            }
+        }
+
+        // Update the selected count display
+        function updateSelectedCount() {
+            selectedCountDisplay.textContent = `Selected: ${selectedBalls.length}`;
+            
+            // Disable remove button if no balls are selected
+            if (selectedBalls.length === 0) {
+                removeBtn.classList.add('disabled');
+            } else {
+                removeBtn.classList.remove('disabled');
+            }
+        }
+
+        // Update game display (player turns, counts, etc.)
+        function updateGameDisplay() {
+            remainingBallsDisplay.textContent = remainingBalls;
+            playerRemovedDisplay.textContent = playerRemoved;
+            aiRemovedDisplay.textContent = aiRemoved;
+            
+            if (currentPlayer === 'player') {
+                gameStatus.textContent = "Your turn - Select 1-3 balls";
+                playerSection.classList.add('active');
+                aiSection.classList.remove('active');
+            } else {
+                gameStatus.textContent = "AI is thinking...";
+                playerSection.classList.remove('active');
+                aiSection.classList.add('active');
+            }
+            
+            // Reset selected balls on turn change
+            resetSelection();
+        }
+
+        // Reset ball selection
+        function resetSelection() {
+            selectedBalls = [];
+            document.querySelectorAll('.ball.selected').forEach(ball => {
+                ball.classList.remove('selected');
+            });
+            updateSelectedCount();
+        }
+
+        // Handle ball removal
+        function removeBalls(ballIds, player) {
+            ballIds.forEach(id => {
+                const ball = document.querySelector(`.ball[data-id="${id}"]`);
+                if (ball) {
+                    ball.classList.add('removed');
+                    ball.classList.remove('selected');
+                }
+            });
+            
+            remainingBalls -= ballIds.length;
+            
+            if (player === 'player') {
+                playerRemoved += ballIds.length;
+            } else {
+                aiRemoved += ballIds.length;
+            }
+            
+            // Check if game is over
+            if (remainingBalls === 0) {
+                endGame();
+                return;
+            }
+            
+            // Switch players
+            currentPlayer = (player === 'player') ? 'ai' : 'player';
+            updateGameDisplay();
+            
+            // If it's AI's turn, make a move
+            if (currentPlayer === 'ai') {
+                setTimeout(makeAiMove, 1000);
+            }
+        }
+
+        // AI Logic
+        function makeAiMove() {
+            if (!gameActive) return;
+
+            let numberToRemove;
+
+            if (difficulty === 'easy') {
+                // Easy mode: AI removes a random number of balls (1-3)
+                numberToRemove = Math.floor(Math.random() * 3) + 1;
+            } else if (difficulty === 'medium') {
+                // Medium mode: AI tries to leave the player in a losing position but isn't always perfect
+                if (remainingBalls % 4 === 0) {
+                    numberToRemove = Math.floor(Math.random() * 3) + 1;
+                } else {
+                    numberToRemove = (remainingBalls % 4);
+                }
+            } else if (difficulty === 'hard') {
+                // Hard mode: AI always picks the best move to ensure the player gets the last ball
+                numberToRemove = (remainingBalls - 1) % 4;
+                if (numberToRemove === 0) {
+                    numberToRemove = 1; // If already in a losing position, remove 1 ball
+                }
+            }
+
+            // Ensure the AI doesn't remove more balls than are remaining
+            numberToRemove = Math.min(numberToRemove, remainingBalls);
+
+            // Select balls to remove
+            let ballsToRemoveIds = [];
+            let remainingBallElements = Array.from(document.querySelectorAll('.ball:not(.removed)'));
+
+            for (let i = 0; i < numberToRemove; i++) {
+                if (remainingBallElements[i]) {
+                    ballsToRemoveIds.push(parseInt(remainingBallElements[i].dataset.id));
+                }
+            }
+
+            if (ballsToRemoveIds.length > 0) {
+                gameStatus.textContent = `AI removes ${ballsToRemoveIds.length} ball${ballsToRemoveIds.length > 1 ? 's' : ''}`;
+                removeBalls(ballsToRemoveIds, 'ai');
+            }
+            
+            console.log("AI is removing:", numberToRemove);
+        }
+
+        // End the game
+        function endGame() {
+            gameActive = false;
+            
+            // Determine winner (the player who doesn't have to take the last ball)
+            const winner = (currentPlayer === 'player') ? 'ai' : 'player';
+            
+            if (winner === 'player') {
+                winnerText.textContent = "You Win!";
+                gameResult.textContent = "Congratulations! You've outplayed the AI.";
+            } else {
+                winnerText.textContent = "AI Wins!";
+                gameResult.textContent = "The AI has won this round. Better luck next time!";
+            }
+            
+            // Show the game over overlay
+            gameOverOverlay.classList.add('active');
+        }
+
+        // Event listeners
+        removeBtn.addEventListener('click', function() {
+            if (!gameActive || currentPlayer === 'ai' || selectedBalls.length === 0) return;
+            
+            // Check if player is trying to leave exactly 1 ball
+            if (remainingBalls - selectedBalls.length === 1) {
+                removeBalls(selectedBalls, 'player');
+            } else if (selectedBalls.length >= 1 && selectedBalls.length <= 3) {
+                removeBalls(selectedBalls, 'player');
+            }
+        });
+        
+        resetBtn.addEventListener('click', function() {
+            window.location.href = 'settings.html';
+        });
+        
+        restartBtn.addEventListener('click', function() {
+            window.location.href = 'game.html';
+        });
+    </script>
+</body>
+</html>
