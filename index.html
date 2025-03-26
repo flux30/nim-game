@@ -43,17 +43,22 @@
             text-align: center;
         }
         
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 5rem;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
         h1 {
             color: var(--accent-color);
             font-size: 3rem;
             margin-bottom: 20px;
             text-shadow: 0 0 10px rgba(176, 102, 255, 0.3);
-        }
-        
-        .logo {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite ease-in-out;
         }
         
         p {
@@ -130,11 +135,45 @@
                 opacity: 1;
             }
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .logo {
+                font-size: 4rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .rules {
+                padding: 15px;
+            }
+            
+            .rules h2 {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🔮</div>
+        <div class="logo-container">
+            <div class="logo">🔮</div>
+        </div>
         <h1>The Nim Game</h1>
         
         <p>Welcome to <span class="highlight">Nim</span>, a strategic game of mathematical prowess where the last move determines the winner.</p>
@@ -156,10 +195,8 @@
     </div>
 
     <script>
-        // No complex JavaScript needed for the home page
         console.log("Nim Game Initialized");
         
-        // Simple animation effect when page loads
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.querySelector('.container');
             container.style.opacity = '0';
